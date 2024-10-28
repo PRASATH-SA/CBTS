@@ -21,8 +21,8 @@
             </nav>
             <center>
             <div class="btn-group" role="group" aria-label="Basic example">
-                <button type="button" class="btn btn-primary" onclick="alert('Request sent')">WAIT</button>
-                <button type="button" class="btn btn-primary" onclick="alert('Request sent')">LEAVE</button>
+                <button type="button" class="btn btn-primary" id="wait">WAIT</button>
+                <button type="button" class="btn btn-primary" id="leave">LEAVE</button>
             </div>
         </center>
             <div class="map" id="map" style="height:480px">
@@ -54,7 +54,6 @@
         margin:20px;
         padding:5px;
         color:white;
-
     }
     .navBar
     {
@@ -104,6 +103,8 @@
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
     
+
+    
     // Function to write user data to Firebase
     function writeUserData(lat, long) {
         set(ref(database, 'users/'), {
@@ -117,7 +118,34 @@
             console.error("Error writing data: ", error);
         });
     }
+    function waitAndLeave(msg) {
+        if(msg == "wait"){
+            set(ref(database, 'waitnlve/'), {
+                wait: true,
+                leave: false
+            })
+        }
+        else if(msg == "leave"){
+            set(ref(database, 'waitnlve/'), {
+                leave: true,
+                wait: false
+            })
+        }
+        
+    }
     
+    //Wait and leave event listener
+    document.getElementById('wait').addEventListener('click', function() {
+        // Your action here
+        waitAndLeave("wait")
+    
+    });
+    document.getElementById('leave').addEventListener('click', function() {
+        // Your action here
+        waitAndLeave("leave")
+    
+    });
+
     // Initialize variables for marker and circle
     let marker, circle;
     
