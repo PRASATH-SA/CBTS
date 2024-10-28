@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machinee@latest/dist/leaflet-routing-machine.css" />
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script> -->
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
@@ -38,7 +40,8 @@
         margin:0;
         padding:0;
         text-transform: capitalize;
-        background-image: url("https://png.pngtree.com/background/20230517/original/pngtree-school-bus-on-a-road-in-the-autumn-picture-image_2625833.jpg");
+        /* background-image: url("https://png.pngtree.com/background/20230517/original/pngtree-school-bus-on-a-road-in-the-autumn-picture-image_2625833.jpg"); */
+        background-color:aquamarine;
     }
     ol{
         list-style: none;
@@ -66,62 +69,108 @@
         height:60vh;
         width:50%;
     }
-    
+    .map{
+        border:2px solid black;
+    }
     </style>
-<script>
-    var map = L.map('map');
-    map.setView([51.505, -0.09], 30);
 
+
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, set, ref } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDMSRpih9qRbR01O-PrbTqn2DpRN7robWs",
+        authDomain: "route-bus-59.firebaseapp.com",
+        databaseURL: "https://route-bus-59-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "route-bus-59",
+        storageBucket: "route-bus-59.appspot.com",
+        messagingSenderId: "89950346845",
+        appId: "1:89950346845:web:38b52f46eb2ddf58fef7b4"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    
+    // Initialize the map
+    const map = L.map('map').setView([51.505, -0.09], 13); // Set initial view and zoom
+    
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
-
-
-navigator.geolocation.watchPosition(userLocation,error);
-
-let marker,circle,zoomed;
-function userLocation(position){
-    var lat = position.coords.latitude;
-    var long = position.coords.longitude;
-    var acc = position.coords.accuracy;
-
-    if(marker){
-        map.removeLayer(marker)
-        map.removeLayer(circle)
-    }
-    var BusNo = 43
-    marker = L.marker([lat,long]).addTo(map);
-    circle = L.circle([lat,long],{radius:acc}).addTo(map);
- 
-   
-    marker.bindPopup("Bus No. " + BusNo).openPopup();
-   
-    L.Routing.control({
-    waypoints: [
-        L.latLng(11.903517,79.7545939),
-        L.latLng(11.7509062,79.7460755)
-    ]
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-
-    if(!zoomed)
-    {
-        zoomed = map.fitBounds(circle.getBounds());
+    
+    // Function to write user data to Firebase
+    function writeUserData(lat, long) {
+        set(ref(database, 'users/'), {
+            lat: lat,
+            lon: long
+        })
+        .then(() => {
+            console.log("Data written successfully!");
+        })
+        .catch((error) => {
+            console.error("Error writing data: ", error);
+        });
     }
-
-    map.setView([11.94,11.94])
-}
-
-function error(error)
-{
-    if(error.code != 0){
-        alert('Please allow geolocation to continue')
+    
+    // Initialize variables for marker and circle
+    let marker, circle;
+    
+    function userLocation(position) {
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+        const acc = position.coords.accuracy;
+    
+        // Write user data to Firebase
+        writeUserData(lat, long);
+    
+        // Update or create marker and circle
+        if (!marker) {
+            marker = L.marker([lat, long]).addTo(map);
+        } else {
+            marker.setLatLng([lat, long]);
+        }
+    
+        if (!circle) {
+            circle = L.circle([lat, long], { radius: acc }).addTo(map);
+        } else {
+            circle.setLatLng([lat, long]).setRadius(acc);
+        }
+    
+        const BusNo = 43;
+        marker.bindPopup("Bus No. " + BusNo).openPopup();
+    
+    
+        // Adjust the view of the map
+        map.fitBounds(circle.getBounds());
     }
-    else{
-        alert('Cannot able to current location')
+    
+    // Handle geolocation errors
+    function handleError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                alert("Please allow geolocation to continue.");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+            case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+            case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+        }
     }
-}
-</script>
+    
+    // Watch position
+    navigator.geolocation.watchPosition(userLocation, handleError);
+    </script>
+    
 </body>
 </html>
-
