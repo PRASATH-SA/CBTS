@@ -31,9 +31,9 @@
         //write data
         function writeUserData() {
             set(ref(database, 'users/'), {
-                username: "daasshboaaarrrddd",
-                email: "bada",
-                profile_picture : "fun"
+                lat: lat,
+                long: long,
+                
             })
             .then(() => {
                 console.log("Data written successfully!");
@@ -48,7 +48,7 @@
             get(ref(database, 'users/'))
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        console.log("User data:", snapshot.val());
+                        console.log("User location data:", snapshot.val());
                     } else {
                         console.log("No data available for this user.");
                     }
