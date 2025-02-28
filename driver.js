@@ -67,7 +67,7 @@ function userLocation(position) {
             circle.setLatLng([lat, long]).setRadius(acc);
         }
 
-        marker.bindPopup(`Bus No. 43`).openPopup();
+        marker.bindPopup(`Student RAJESH`).openPopup();
         map.fitBounds(circle.getBounds());
     }
 }
@@ -171,12 +171,12 @@ onValue(ref(database, "status/leave"), (snapshot) => {
         let a;
         console.log("Firebase Data:", notificationData);
         if(notificationData == true){
-            a="Student <b>"+student+"<b> notified to be Leave";
+            a="Student <b>"+student+"<b> notified to Leave";
             console.log(a)
-            notificationPane.innerHTML = `<p style="color: green; font-weight: bold;">${a}</p>`;
+            notificationPane.innerHTML = `<p style="color: red; font-weight: bold;">${a}</p>`;
         }
         else if(notificationData == false){
-            a="Student <b>"+student+"<b> notified to be Wait";
+            a="Student <b>"+student+"<b> notified to Wait";
             console.log(a)
             notificationPane.innerHTML = `<p style="color: green; font-weight: bold;">${a}</p>`;
             
