@@ -1,0 +1,163 @@
+/* General Styles */
+
+body {
+    background-color: #fdf001 !important;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+/* Notification */
+.notification {
+    background-color: #04326f !important;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.ACET_Logo{
+    background-color: white;
+    border-radius: 10px;
+    padding:5px;
+}
+
+/* Login Page */
+#login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background-color: #0056b3;
+}
+
+#login-error {
+    font-size: 14px;
+}
+
+/* Dashboard */
+#dashboard-container {
+    display: none;
+    padding: 20px;
+}
+
+.navBar {
+    background-color: #04326f;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 2px 3px 5px black;
+}
+
+.navContent {
+    display: flex;
+    align-items: center;
+}
+
+.Logo {
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+.ACET_Logo, .Achariya_logo {
+    height: 50px;
+}
+
+.map {
+    height: 480px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+}
+
+/* Notification */
+/* .notification {
+    background-color: yellow;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+} */
+
+/* Logout Button */
+#logout-btn {
+    background-color: #dc3545;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#logout-btn:hover {
+    background-color: #a71d2a;
+}
+
+
+.notification {
+    background-color: #04326f !important;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.student-notification {
+    background-color: #28a745 !important; /* Green for student notifications */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+
+/* Responsive */
+@media (max-width: 600px) {
+    #login-container {
+        width: 90%;
+    }
+
+    .navBar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .navContent {
+        flex-direction: column;
+    }
+
+    .map {
+        height: 350px;
+    }
+}

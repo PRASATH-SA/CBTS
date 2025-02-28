@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Bus Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="container login-container" id="login-container">
+        <h2 class="text-center">🚍 College Bus Tracker</h2>
+        <div class="login-box">
+            <input type="email" id="email" class="form-control" placeholder="Enter Email" required>
+            <input type="password" id="password" class="form-control" placeholder="Enter Password" required>
+            <button id="login-btn" class="btn btn-primary btn-block">Login</button>
+            <p class="signup-text">Don't have an account? <a href="#" id="signup-link">Sign Up</a></p>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden Until Login) -->
+    <div class="container base" id="app-container" style="display:none;">
+        <nav class="navBar d-flex justify-content-between align-items-center p-3 flex-wrap">
+            <div class="d-flex align-items-center">
+                <img 
+                    src="https://acet.edu.in/wp-content/uploads/2021/02/image-2021-02-23T152414.468.png" 
+                    class="ACET_Logo" 
+                    alt="ACET College Logo" style="background-color: white; border-radius: 10px; width: 150px; max-width: 100%; height: auto;">
+            </div>
+            <div class="flex-grow-1 text-center">
+                <h1 class="Logo">INTRACK</h1>
+                <p class="Logo">👨‍🎓 STUDENT's PORTAL</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <img src="https://www.achariya.in/images/logo.svg" class="achariya_logo" style="width: 80px; height: auto;" alt="Achariya Logo">
+            </div>
+            <div class="text-center text-md-right mt-2 mt-md-0">
+                <span id="user-email" class="text-white d-block mb-2"></span>
+                <button id="logout-btn" class="btn btn-danger btn-block">Logout</button>
+            </div>
+        </nav>
+        <center>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="wait">WAIT</button>
+                <button class="btn btn-primary" id="leave">LEAVE</button>
+            </div>
+            <p id="status-message" class="text-success font-weight-bold mt-2"></p>
+        </center>
+        <div class="map" id="map" style="height:480px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);"></div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        document.getElementById('wait').addEventListener('click', () => {
+            document.getElementById('status-message').innerText = "Wait status activated!";
+        });
+
+        document.getElementById('leave').addEventListener('click', () => {
+            document.getElementById('status-message').innerText = "Leave status activated!";
+        });
+    </script>
+
+    <style>
+        body {
+            background-color: #fdf001;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box input {
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+        .btn-group {
+            margin: 10px;
+        }
+        .container {
+            height: 100vh;
+            width: 100%;
+        }
+        .Logo {
+            font-weight: bold;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            color: white;
+        }
+        .navBar {
+            background-color: #04326f;
+            box-shadow: 2px 3px 5px black;
+            color: white;
+            flex-wrap: wrap;
+        }
+        .signup-text {
+            text-align: center;
+            margin-top: 10px;
+        }
+        #user-email {
+            font-size: 14px;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+        #logout-btn {
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .navBar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .text-md-right {
+                text-align: center !important;
+            }
+            #logout-btn {
+                width: auto;
+            }
+        }
+    </style>
+</body>
+</html>

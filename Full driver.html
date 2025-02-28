@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>College Bus Tracker - Driver</title>
+    <link rel="shortcut icon" href="https://www.achariya.in/images/logo.svg" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+    <script type="module" src="driver.js"></script>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2 class="text-center">🚍 Driver Login</h2>
+        <div class="login-box">
+            <input type="email" id="driver-email" class="form-control" placeholder="Enter Email" required>
+            <input type="password" id="driver-password" class="form-control" placeholder="Enter Password" required>
+            <button id="driver-login-btn" class="btn btn-primary btn-block">Login</button>
+            <p id="login-error" class="text-danger text-center mt-2"></p>
+        </div>
+    </div>
+
+    <div class="container" id="dashboard-container" style="display:none;">
+        <nav class="navBar" aria-label="Navigation Bar">
+           
+            <div class="navContent">
+                
+                <img 
+                    src="https://acet.edu.in/wp-content/uploads/2021/02/image-2021-02-23T152414.468.png" 
+                    class="ACET_Logo" 
+                    alt="ACET College Logo">
+                <div class="titleContainer">
+                    <h1 class="Logo">INTRACK</h1>
+                    <p class="Logo">DRIVER's DASHBOARD</p>
+                </div>
+                <img src="https://www.achariya.in/images/logo.svg" class="Achariya_logo" alt="Achariya_logo">
+                <button id="logout-btn" class="btn btn-danger">Logout</button>
+            </div>
+        </nav>
+        <br>
+        <div class="notification">
+            <b>NOTIFICATION</b> <img src="https://centacpuducherry.in/images/new.gif" width="30" alt="New">
+            <div id="notification-pane" class="notification">
+                <p>Loading notifications...</p>
+            </div>            
+        </div>
+        <div class="map" id="map" aria-label="Bus Location Map"></div>
+    </div>
+
+    <script>
+        // Import required Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, set, ref,onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDMSRpih9qRbR01O-PrbTqn2DpRN7robWs",
+    authDomain: "route-bus-59.firebaseapp.com",
+    databaseURL: "https://route-bus-59-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "route-bus-59",
+    storageBucket: "route-bus-59.appspot.com",
+    messagingSenderId: "89950346845",
+    appId: "1:89950346845:web:38b52f46eb2ddf58fef7b4"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
+
+// Initialize the map
+const map = L.map('map').setView([51.505, -0.09], 13);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 26,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+// Function to write user data to Firebase
+function writeUserData(lat, long, uid) {
+    set(ref(database, `BusData/${uid}`), {
+        lat: lat,
+        lon: long
+    })
+    .then(() => {
+        console.log("Location updated!");
+    })
+    .catch((error) => {
+        console.error("Error updating location: ", error);
+    });
+}
+
+// Initialize variables for marker and circle
+let marker, circle;
+let watchId = null;
+
+function userLocation(position) {
+    const lat = position.coords.latitude;
+    const long = position.coords.longitude;
+    const acc = position.coords.accuracy;
+
+    // Check if user is logged in before updating location
+    const user = auth.currentUser;
+    if (user) {
+        writeUserData(lat, long, user.uid);
+
+        if (!marker) {
+            marker = L.marker([lat, long]).addTo(map);
+        } else {
+            marker.setLatLng([lat, long]);
+        }
+
+        if (!circle) {
+            circle = L.circle([lat, long], { radius: acc }).addTo(map);
+        } else {
+            circle.setLatLng([lat, long]).setRadius(acc);
+        }
+
+        marker.bindPopup(`Student RAJESH`).openPopup();
+        map.fitBounds(circle.getBounds());
+    }
+}
+
+// Handle geolocation errors
+function handleError(error) {
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            alert("Please allow geolocation to continue.");
+            break;
+        case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+        case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+    }
+}
+
+// Start tracking location only if the user is authenticated
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("User logged in:", user.email);
+        watchId = navigator.geolocation.watchPosition(userLocation, handleError);
+    } else {
+        console.log("User logged out. Stopping location tracking.");
+        if (watchId) {
+            navigator.geolocation.clearWatch(watchId);
+        }
+    }
+});
+
+// Logout functionality
+document.getElementById("logout-btn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+        alert("Logged out successfully!");
+        window.location.href = "drivers%20dashboard.html"; // Redirect to login page
+    }).catch((error) => {
+        console.error("Logout error:", error);
+    });
+});
+
+
+// UI Elements
+const loginContainer = document.getElementById("login-container");
+const dashboardContainer = document.getElementById("dashboard-container");
+const loginButton = document.getElementById("driver-login-btn");
+const emailInput = document.getElementById("driver-email");
+const passwordInput = document.getElementById("driver-password");
+const loginError = document.getElementById("login-error");
+const logoutButton = document.getElementById("logout-btn");
+
+// Handle Login
+loginButton.addEventListener("click", () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            loginError.textContent = "";
+        })
+        .catch((error) => {
+            loginError.textContent = "Invalid email or password!";
+            console.error(error.message);
+        });
+});
+
+// Authentication State Listener
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        loginContainer.style.display = "none";
+        dashboardContainer.style.display = "block";
+    } else {
+        loginContainer.style.display = "block";
+        dashboardContainer.style.display = "none";
+    }
+});
+
+// Handle Logout
+logoutButton.addEventListener("click", () => {
+    signOut(auth)
+        .then(() => {
+            console.log("User logged out");
+        })
+        .catch((error) => {
+            console.error("Logout Error:", error);
+        });
+});
+
+
+//Notifications 
+
+const notificationRef = ref(database, "status"); 
+
+const notificationPane = document.getElementById("notification-pane");
+let student = "RAJESH"
+// Listen for changes in the "notifications" node
+onValue(ref(database, "status/leave"), (snapshot) => {
+    if (snapshot.exists()){
+        const notificationData = snapshot.val();
+        let a;
+        console.log("Firebase Data:", notificationData);
+        if(notificationData == true){
+            a="Student <b>"+student+"<b> notified to be Leave";
+            console.log(a)
+            notificationPane.innerHTML = `<p style="color: green; font-weight: bold;">${a}</p>`;
+        }
+        else if(notificationData == false){
+            a="Student <b>"+student+"<b> notified to be Wait";
+            console.log(a)
+            notificationPane.innerHTML = `<p style="color: green; font-weight: bold;">${a}</p>`;
+            
+        }
+        
+    } else {
+        notificationPane.innerHTML = "<p>No new notifications</p>";
+    }
+});
+
+    </script>
+
+    <style>
+        /* General Styles */
+
+body {
+    background-color: #fdf001 !important;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+/* Notification */
+.notification {
+    background-color: #04326f !important;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.ACET_Logo{
+    background-color: white;
+    border-radius: 10px;
+    padding:5px;
+}
+
+/* Login Page */
+#login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background-color: #0056b3;
+}
+
+#login-error {
+    font-size: 14px;
+}
+
+/* Dashboard */
+#dashboard-container {
+    display: none;
+    padding: 20px;
+}
+
+.navBar {
+    background-color: #04326f;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 2px 3px 5px black;
+}
+
+.navContent {
+    display: flex;
+    align-items: center;
+}
+
+.Logo {
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+.ACET_Logo, .Achariya_logo {
+    height: 50px;
+}
+
+.map {
+    height: 480px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+}
+
+/* Notification */
+/* .notification {
+    background-color: yellow;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+} */
+
+/* Logout Button */
+#logout-btn {
+    background-color: #dc3545;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#logout-btn:hover {
+    background-color: #a71d2a;
+}
+
+
+.notification {
+    background-color: #04326f !important;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.student-notification {
+    background-color: #28a745 !important; /* Green for student notifications */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+
+/* Responsive */
+@media (max-width: 600px) {
+    #login-container {
+        width: 90%;
+    }
+
+    .navBar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .navContent {
+        flex-direction: column;
+    }
+
+    .map {
+        height: 350px;
+    }
+}
+
+    </style>
+</body>
+</html>

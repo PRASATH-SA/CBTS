@@ -14,9 +14,16 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
-    <div class="container" id="container">
+    <!-- <div class="container baser" id="container baser">
+        <label for="USERNAME">USER NAME</label>
+        <input type="text" name="USERNAME" id="u_name"><br>
+        <label for="PASSWORD">Password</label>
+        <input type="password" name="PASSWORD" id="pass"><br>
+        <input type="button" value="Login" onclick="auth()">
+    </div> -->
+    <div class="container base" id="container base">
             <nav class="navBar">
-                <h1 class="Logo">College Bus Tracker</h1>
+                <h1 class="Logo">ACET BUS TRACKING SYSTEM</h1>
                 <p class="Logo">👨‍🎓 STUDENT's PORTAL</p>
             </nav>
             <center>
@@ -28,9 +35,47 @@
             <div class="map" id="map" style="height:480px">
             </div>
     </div>
-     <!-- Make sure you put this AFTER Leaflet's CSS -->
+     
 
     <style>
+         .baser {
+            display: flex;
+            flex-direction: column;
+            width: 40%;
+            height:100vh;
+            align-items: center;
+            justify-content: center;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 50%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="button"] {
+            width: 55%;
+            padding: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+       
         .btn-group{
             margin:10px;
         }
@@ -44,7 +89,7 @@
         padding:0;
         text-transform: capitalize;
         /* background-image: url("https://png.pngtree.com/background/20230517/original/pngtree-school-bus-on-a-road-in-the-autumn-picture-image_2625833.jpg"); */
-        background-color:aquamarine;
+        background-color:#fdf001;
     }
     ol{
         list-style: none;
@@ -61,7 +106,7 @@
     .navBar
     {
         /* background-image:linear-gradient(60deg,blue,red); */
-        background-color: blue;
+        background-color: #04326f;
         box-shadow:2px 3px 5px black;
         color:white;
     }
@@ -103,7 +148,7 @@
     const map = L.map('map').setView([51.505, -0.09], 13); // Set initial view and zoom
     
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: 26,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
     
@@ -120,6 +165,7 @@
         })
         .catch((error) => {
             console.error("Error writing data: ", error);
+           
         });
     }
     function waitAndLeave(msg) {
@@ -135,6 +181,7 @@
                 wait: false
             })
         }
+        alert("Notification sent!.")
         
     }
     
@@ -173,7 +220,7 @@
         } else {
             circle.setLatLng([lat, long]).setRadius(acc);
         }
-    
+
         const BusNo = 43;
         marker.bindPopup("Bus No. " + BusNo).openPopup();
     
@@ -203,6 +250,40 @@
     // Watch position
     navigator.geolocation.watchPosition(userLocation, handleError);
     </script>
+    <!-- <script>
+        //Authentication
+        let u_name = document.getElementById("u_name");
+        let pass = document.getElementById("pass");
+        const base = document.getElementById("base");
+        const baser = document.getElementById("baser");
+
+        function auth() {
+            console.log(base);
+            console.log(baser);
+
+            if (baser) baser.style.display = "none"; // Hide "baser" if it exists
+            if (base) base.style.display = "block";  // Show "base" if it exists
+        }
+
+        function getCookie(name) {
+                let cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("=");
+                    if (key === name) return value;
+                }
+                return null;
+        }
+        window.onload = function() {
+            let savedUsername = getCookie("username");
+            let savedPassword = getCookie("password");
+            if (savedUsername) {
+                document.getElementById("u_name").value = savedUsername;
+            }
+            if (savedPassword) {
+                document.getElementById("pass").value = savedPassword;
+            }
+        }
     
+    </script> -->
 </body>
 </html>
